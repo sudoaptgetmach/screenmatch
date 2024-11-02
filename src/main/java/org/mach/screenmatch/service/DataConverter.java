@@ -3,7 +3,7 @@ package org.mach.screenmatch.service;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-public class JsonConverter implements ConverterInterface{
+public class DataConverter implements ConverterInterface{
 
     private final ObjectMapper mapper = new ObjectMapper();
 

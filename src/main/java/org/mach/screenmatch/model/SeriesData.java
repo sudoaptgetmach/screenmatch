@@ -11,5 +11,5 @@ public record SeriesData(String Title,
                          String Plot,
                          String Language,
                          String imdbRating,
-                         String totalSeasons) {
+                         Integer totalSeasons) {
 }
