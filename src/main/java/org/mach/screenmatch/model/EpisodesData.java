@@ -1,10 +1,11 @@
 package org.mach.screenmatch.model;
 
+import com.fasterxml.jackson.annotation.JsonAlias;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-public record EpisodesData(String Title,
-                           Integer Episode,
+public record EpisodesData(@JsonAlias("Title") String title,
+                           @JsonAlias("Episode") Integer episode,
                            String imdbRating,
-                           String Released) {
+                           @JsonAlias("Released") String released) {
 }
