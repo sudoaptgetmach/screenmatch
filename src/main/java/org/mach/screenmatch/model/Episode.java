@@ -22,8 +22,28 @@ public class Episode {
         } catch (NumberFormatException e) {
             this.imdbRating = (double) 0;
         } catch (DateTimeParseException e) {
-            this.released = LocalDate.ofEpochDay(1969/31/12);
+            this.released = null;
         }
+    }
+
+    public Integer getSeason() {
+        return season;
+    }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public Integer getEpisode() {
+        return episode;
+    }
+
+    public Double getImdbRating() {
+        return imdbRating;
+    }
+
+    public LocalDate getReleased() {
+        return released;
     }
 
     @Override
