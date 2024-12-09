@@ -1,21 +1,25 @@
 package org.mach.screenmatch.service;
 
-import com.theokanning.openai.completion.CompletionRequest;
 import com.theokanning.openai.service.OpenAiService;
+import com.theokanning.openai.completion.CompletionRequest;
+import com.theokanning.openai.completion.CompletionResult;
+
+import java.util.List;
 
 public class GPTTranslator {
 
-    public static String translate(String texto) {
-        OpenAiService service = new OpenAiService("cole aqui sua chave da OpenAI");
+    private static final String API_KEY = System.getenv("GPT_API_KEY");
 
-        CompletionRequest requisicao = CompletionRequest.builder()
-                .model("gpt-3.5-turbo-instruct")
+    public static String translate(String texto) {
+        OpenAiService service = new OpenAiService(API_KEY);
+
+        CompletionRequest request = CompletionRequest.builder()
                 .prompt("Traduza o seguinte texto para o português: " + texto)
+                .model("gpt-3.5-turbo")
                 .maxTokens(1000)
-                .temperature(0.7)
                 .build();
 
-        var resposta = service.createCompletion(requisicao);
-        return resposta.getChoices().getFirst().getText();
+        CompletionResult result = service.createCompletion(request);
+        return result.getChoices().get(0).getText().trim();
     }
 }

@@ -1,6 +1,7 @@
 package org.mach.screenmatch.model;
 
 import com.fasterxml.jackson.annotation.JsonAlias;
+import org.mach.screenmatch.service.GPTTranslator;
 
 import java.util.OptionalDouble;
 
