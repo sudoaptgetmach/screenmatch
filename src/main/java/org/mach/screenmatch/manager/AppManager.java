@@ -1,8 +1,11 @@
 package org.mach.screenmatch.manager;
 
 import org.mach.screenmatch.model.*;
+import org.mach.screenmatch.repository.SeriesRepository;
 import org.mach.screenmatch.service.ApiService;
 import org.mach.screenmatch.service.DataConverter;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
@@ -11,6 +14,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.stream.Collectors;
 
+@Component
 public class AppManager {
 
     private final ApiService apiService = new ApiService();
@@ -19,6 +23,13 @@ public class AppManager {
     private final String API_KEY = "&apikey=" + System.getenv("OMDB_API_KEY");
     DateTimeFormatter df = DateTimeFormatter.ofPattern("dd/MM/yyyy");
     private final List<Series> searchedSeries = new ArrayList<>();
+
+    @Autowired
+    private SeriesRepository repository;
+
+    public AppManager(SeriesRepository repository) {
+        this.repository = repository;
+    }
 
     public void menu() {
         while (true) {
@@ -63,13 +74,15 @@ public class AppManager {
         }
 
         Series seriesObj = new Series(seriesData);
-        searchedSeries.add(seriesObj);
+
+        Series existingSeries = repository.findByTitle(seriesObj.getTitle());
+        Series newSeries = seriesObj;
+        repository.save(existingSeries != null ? existingSeries : newSeries);
 
         List<SeasonData> seasonsList = new ArrayList<>();
         for (int i = 1; i <= seriesData.totalSeasons(); i++) {
             data = apiService.obterDados(ENDERECO + URLEncoder.encode(inputName, StandardCharsets.UTF_8) + "&season=" + i + API_KEY);
             SeasonData seasonData = converter.obterDados(data, SeasonData.class);
-            seasonsList.add(seasonData);
         }
 
         List<Episode> episodes = seasonsList.stream()
@@ -158,8 +171,8 @@ public class AppManager {
     }
 
     private void showSearchedSeries() {
-        searchedSeries.stream()
-                .sorted(Comparator.comparing(Series::getGenre))
-                .forEach(System.out::println);
+        List<Series> searchedSeries = new ArrayList<>();
+        searchedSeries = repository.findAll();
+
     }
 }

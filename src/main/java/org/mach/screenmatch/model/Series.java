@@ -1,16 +1,13 @@
 package org.mach.screenmatch.model;
 
-import org.mach.screenmatch.model.SeriesData;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import jakarta.persistence.*;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.Table;
-import jakarta.persistence.Column;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.OptionalDouble;
+import java.util.stream.Collectors;
 
 @Entity
 @Table(name = "series")
@@ -36,14 +33,16 @@ public class Series {
     private String imdbRating;
     private Integer totalSeasons;
 
-    public Series() {
-    }
+    @Transient
+    private List<Episode> episodes = new ArrayList<>();
+
+    public Series() {}
 
     public Series(SeriesData data) {
         this.title = data.title();
-        this.year = data.year();
+        this.year = data.year().split("-")[0].trim();
         this.released = data.released();
-        this.genre = data.genre();
+        this.genre = Categories.fromString(data.genre().split(",")[0].trim());
         this.actors = data.actors();
         this.plot = data.plot();
         this.language = data.language();
@@ -88,7 +87,7 @@ public class Series {
         return genre;
     }
 
-    public void setGenre(Categories genre) {
+    public void setGenero(Categories genre) {
         this.genre = genre;
     }
 
@@ -139,6 +138,16 @@ public class Series {
     public void setTotalSeasons(Integer totalSeasons) {
         this.totalSeasons = totalSeasons;
     }
+
+    public List<Episode> getEpisodes() {
+        return episodes;
+    }
+
+    public void setEpisodes(List<Episode> episodes) {
+        this.episodes = episodes;
+    }
+
+    // Getters and setters...
 
     @Override
     public String toString() {

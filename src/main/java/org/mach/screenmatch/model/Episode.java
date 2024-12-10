@@ -1,5 +1,7 @@
 package org.mach.screenmatch.model;
 
+import jakarta.persistence.ManyToOne;
+
 import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
 

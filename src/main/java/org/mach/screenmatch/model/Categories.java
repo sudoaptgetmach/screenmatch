@@ -1,33 +1,32 @@
 package org.mach.screenmatch.model;
 
 public enum Categories {
-    ACAO("Action"),
-    AVENTURA("Adventure"),
-    COMEDIA("Comedy"),
-    DRAMA("Drama"),
-    FANTASIA("Fantasy"),
-    TERROR("Horror"),
-    MISTERIO("Mystery"),
-    ROMANCE("Romance"),
-    FICCAO_CIENTIFICA("Sci-Fi"),
-    SUSPENSE("Thriller"),
-    ANIMACAO("Animation"),
-    DOCUMENTARIO("Documentary"),
-    FAMILIA("Family"),
-    CRIME("Crime"),
-    MUSICAL("Musical"),
-    BIOGRAFIA("Biography"),
-    HISTORIA("History"),
-    GUERRA("War"),
-    FAROESTE("Western");
+    ANIMATION,
+    DRAMA,
+    WAR,
+    FANTASY,
+    FAMILY,
+    ADVENTURE,
+    BIOGRAPHY,
+    CRIME,
+    SCIENCE_FICTION,
+    HORROR,
+    WESTERN,
+    COMEDY,
+    THRILLER,
+    HISTORY,
+    ROMANCE,
+    ACTION,
+    DOCUMENTARY,
+    MUSICAL,
+    MYSTERY;
 
-    private final String englishName;
-
-    Categories(String englishName) {
-        this.englishName = englishName;
-    }
-
-    public String getEnglishName() {
-        return englishName;
+    public static Categories fromString(String name) {
+        for (Categories category : values()) {
+            if (category.name().equalsIgnoreCase(name)) {
+                return category;
+            }
+        }
+        throw new IllegalArgumentException("No category found for the string: " + name);
     }
 }
