@@ -1,22 +1,43 @@
 package org.mach.screenmatch.model;
 
-import com.fasterxml.jackson.annotation.JsonAlias;
-import org.mach.screenmatch.service.GPTTranslator;
+import org.mach.screenmatch.model.SeriesData;
 
+import jakarta.persistence.Entity;
+import jakarta.persistence.Table;
+import jakarta.persistence.Column;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
 import java.util.OptionalDouble;
 
+@Entity
+@Table(name = "series")
 public class Series {
 
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @Column(unique = true)
     private String title;
+
     private String year;
     private String released;
-    private String genre;
+
+    @Enumerated(EnumType.STRING)
+    private Categories genre;
+
     private String actors;
     private String plot;
     private String language;
     private String poster;
     private String imdbRating;
     private Integer totalSeasons;
+
+    public Series() {
+    }
 
     public Series(SeriesData data) {
         this.title = data.title();
@@ -29,6 +50,14 @@ public class Series {
         this.poster = data.poster();
         this.imdbRating = String.valueOf(OptionalDouble.of(Double.parseDouble(data.imdbRating())).orElse(0));
         this.totalSeasons = data.totalSeasons();
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
     }
 
     public String getTitle() {
@@ -55,11 +84,11 @@ public class Series {
         this.released = released;
     }
 
-    public String getGenre() {
+    public Categories getGenre() {
         return genre;
     }
 
-    public void setGenre(String genre) {
+    public void setGenre(Categories genre) {
         this.genre = genre;
     }
 
