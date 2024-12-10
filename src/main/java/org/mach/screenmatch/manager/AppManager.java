@@ -22,7 +22,6 @@ public class AppManager {
     private final Scanner scanner = new Scanner(System.in);
     private final String API_KEY = "&apikey=" + System.getenv("OMDB_API_KEY");
     DateTimeFormatter df = DateTimeFormatter.ofPattern("dd/MM/yyyy");
-    private final List<Series> searchedSeries = new ArrayList<>();
 
     @Autowired
     private SeriesRepository repository;
@@ -76,20 +75,7 @@ public class AppManager {
         Series seriesObj = new Series(seriesData);
 
         Series existingSeries = repository.findByTitle(seriesObj.getTitle());
-        Series newSeries = seriesObj;
-        repository.save(existingSeries != null ? existingSeries : newSeries);
-
-        List<SeasonData> seasonsList = new ArrayList<>();
-        for (int i = 1; i <= seriesData.totalSeasons(); i++) {
-            data = apiService.obterDados(ENDERECO + URLEncoder.encode(inputName, StandardCharsets.UTF_8) + "&season=" + i + API_KEY);
-            SeasonData seasonData = converter.obterDados(data, SeasonData.class);
-        }
-
-        List<Episode> episodes = seasonsList.stream()
-                .flatMap(t -> t.episodes().stream()
-                        .map(d -> new Episode(t.season(), d)))
-                .toList();
-        episodes.forEach(System.out::println);
+        repository.save(existingSeries != null ? existingSeries : seriesObj);
     }
 
     private List<Episode> fetchAllEpisodes(String seriesName) {
@@ -161,18 +147,10 @@ public class AppManager {
         }
     }
 
-    private SeriesData getSeriesData() {
-        System.out.println("Digite o nome da série desejada:");
-        var inputName = scanner.nextLine();
-
-        String ENDERECO = "https://www.omdbapi.com/?t=";
-        var data = apiService.obterDados(ENDERECO + URLEncoder.encode(inputName, StandardCharsets.UTF_8) + API_KEY);
-        return converter.obterDados(data, SeriesData.class);
-    }
-
     private void showSearchedSeries() {
-        List<Series> searchedSeries = new ArrayList<>();
-        searchedSeries = repository.findAll();
-
+        List<Series> searchedSeries = repository.findAll();
+        searchedSeries.stream()
+                .sorted(Comparator.comparing(Series::getGenre))
+                .forEach(System.out::println);
     }
 }
