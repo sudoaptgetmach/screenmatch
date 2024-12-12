@@ -1,13 +1,10 @@
 package org.mach.screenmatch.model;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.OptionalDouble;
-import java.util.stream.Collectors;
 
 @Entity
 @Table(name = "series")
@@ -33,7 +30,7 @@ public class Series {
     private String imdbRating;
     private Integer totalSeasons;
 
-    @Transient
+    @OneToMany(mappedBy = "serie", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     private List<Episode> episodes = new ArrayList<>();
 
     public Series() {}
@@ -144,10 +141,9 @@ public class Series {
     }
 
     public void setEpisodes(List<Episode> episodes) {
+        episodes.forEach(e -> e.setSerie(this));
         this.episodes = episodes;
     }
-
-    // Getters and setters...
 
     @Override
     public String toString() {
@@ -160,6 +156,7 @@ public class Series {
                 "language = " + language + "\n" +
                 "poster = " + poster + "\n" +
                 "imdbRating = " + imdbRating + "\n" +
-                "totalSeasons = " + totalSeasons;
+                "totalSeasons = " + totalSeasons + "\n" +
+                "episodes: " + episodes + "\n";
     }
 }

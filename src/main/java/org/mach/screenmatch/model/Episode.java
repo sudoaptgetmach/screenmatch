@@ -1,17 +1,26 @@
 package org.mach.screenmatch.model;
 
-import jakarta.persistence.ManyToOne;
+import jakarta.persistence.*;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
 
+@Entity
+@Table(name = "episodios")
 public class Episode {
 
-    private final Integer season;
-    private final String title;
-    private final Integer episode;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    private Integer season;
+    private String title;
+    private Integer episode;
     private Double imdbRating;
     private LocalDate released;
+
+    @ManyToOne
+    private Series serie;
 
     public Episode(Integer season, EpisodesData d) {
         this.season = season;
@@ -26,6 +35,46 @@ public class Episode {
         } catch (DateTimeParseException e) {
             this.released = null;
         }
+    }
+
+    public Episode() {
+
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public void setSeason(Integer season) {
+        this.season = season;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
+    }
+
+    public void setEpisode(Integer episode) {
+        this.episode = episode;
+    }
+
+    public void setImdbRating(Double imdbRating) {
+        this.imdbRating = imdbRating;
+    }
+
+    public void setReleased(LocalDate released) {
+        this.released = released;
+    }
+
+    public Series getSerie() {
+        return serie;
+    }
+
+    public void setSerie(Series serie) {
+        this.serie = serie;
     }
 
     public Integer getSeason() {
