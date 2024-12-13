@@ -1,5 +1,6 @@
 package org.mach.screenmatch.manager;
 
+import org.apache.commons.text.WordUtils;
 import org.mach.screenmatch.model.*;
 import org.mach.screenmatch.repository.SeriesRepository;
 import org.mach.screenmatch.service.ApiService;
@@ -23,19 +24,25 @@ public class AppManager {
     @Autowired
     private SeriesRepository repository;
 
-    private List<Series> series = new ArrayList<>();
-
     public AppManager(SeriesRepository repository) {
         this.repository = repository;
     }
 
     public void menu() {
         while (true) {
-            System.out.println("Escolha uma opção:");
-            System.out.println("1 - Buscar séries");
-            System.out.println("2 - Buscar episódios");
-            System.out.println("3 - Listar séries buscadas");
-            System.out.println("0 - Sair");
+            var menu = """
+                       Escolha uma opção:
+                       1 - Buscar séries
+                       2 - Buscar episódios
+                       3 - Buscar séries por Ator
+                       4 - Buscar séries por Categoria
+                       
+                       8 - TOP 5 séries
+                       9 - Listar séries buscadas
+                       0 - Sair
+                       """;
+
+            System.out.println(menu);
             int choice = scanner.nextInt();
             scanner.nextLine();
 
@@ -47,6 +54,15 @@ public class AppManager {
                     searchEpisodes();
                     break;
                 case 3:
+                    searchSeriesByActor();
+                    break;
+                case 4:
+                    searchSeriesByGenre();
+                    break;
+                case 8:
+                    searchTopSeries();
+                    break;
+                case 9:
                     showSearchedSeries();
                     break;
                 case 0:
@@ -58,11 +74,42 @@ public class AppManager {
         }
     }
 
+    private void searchSeriesByGenre() {
+
+        System.out.println("Informe o nome da categoria/gênero:");
+        var genreInput = scanner.nextLine();
+
+        List<Series> seriesByGenre = repository.findByGenre(Categories.valueOf(genreInput));
+
+    }
+
+    private void searchTopSeries() {
+
+        List<Series> foundTopSeries = repository.findTop5ByOrderByImdbRatingDesc();
+
+        foundTopSeries.forEach(s -> System.out.println(s.getTitle() + "\n" +
+                " Rating: " + s.getImdbRating() + "\n" +
+                " Plot: " + s.getPlot()));
+
+    }
+
+    private void searchSeriesByActor() {
+        System.out.println("Digite o nome do ator desejado:");
+        var actorName = scanner.nextLine();
+        actorName = WordUtils.capitalizeFully(actorName);
+
+        List<Series> foundSeries = repository.findByActorsContainingIgnoreCase(actorName);
+
+        System.out.println("Obras em que " + actorName + " participou: ");
+        foundSeries.forEach(s -> System.out.println(s.getTitle() + "\n" +
+                " Rating: " + s.getImdbRating() + "\n" +
+                " Plot: " + s.getPlot()));
+    }
+
     private void searchSeries() {
 
         System.out.println("Digite o nome da série desejada:");
         var inputName = scanner.nextLine();
-
 
         var data = apiService.obterDados(ENDERECO + URLEncoder.encode(inputName, StandardCharsets.UTF_8) + API_KEY);
         SeriesData seriesData = converter.obterDados(data, SeriesData.class);
@@ -74,8 +121,8 @@ public class AppManager {
 
         Series seriesObj = new Series(seriesData);
 
-        Series existingSeries = repository.findByTitle(seriesObj.getTitle());
-        repository.save(existingSeries != null ? existingSeries : seriesObj);
+        Optional<Series> existingSeries = repository.findByTitleContainingIgnoreCase(seriesObj.getTitle());
+        repository.save(existingSeries.orElse(seriesObj));
     }
 
     private void searchEpisodes() {
@@ -83,9 +130,7 @@ public class AppManager {
         System.out.println("Digite o nome da série desejada:");
         var seriesName = scanner.nextLine();
 
-        Optional<Series> serie = series.stream()
-                .filter(s -> s.getTitle().toLowerCase().contains(seriesName.toLowerCase()))
-                .findFirst();
+        Optional<Series> serie = repository.findByTitleContainingIgnoreCase(seriesName);
 
         if (serie.isPresent()) {
             var seriesFound = serie.get();
@@ -114,7 +159,7 @@ public class AppManager {
     }
 
     private void showSearchedSeries() {
-        series = repository.findAll();
+        List<Series> series = repository.findAll();
         series.stream()
                 .sorted(Comparator.comparing(Series::getGenre))
                 .forEach(System.out::println);
