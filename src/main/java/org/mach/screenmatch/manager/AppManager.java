@@ -36,6 +36,7 @@ public class AppManager {
                        2 - Buscar episódios
                        3 - Buscar séries por Ator
                        4 - Buscar séries por Categoria
+                       5 - Buscar séries por número de temporadas e avaliação
                        
                        8 - TOP 5 séries
                        9 - Listar séries buscadas
@@ -59,6 +60,9 @@ public class AppManager {
                 case 4:
                     searchSeriesByGenre();
                     break;
+                case 5:
+                    searchBySeasonsAndRating();
+                    break;
                 case 8:
                     searchTopSeries();
                     break;
@@ -74,13 +78,27 @@ public class AppManager {
         }
     }
 
-    private void searchSeriesByGenre() {
+    private void searchBySeasonsAndRating() {
 
+        System.out.println("Quantas temporadas você quer limitar a pesquisa?");
+        var seasons = scanner.nextInt();
+
+        System.out.println("Qual a avaliação mínima que essa séries deve ter?");
+        var rating = scanner.nextDouble();
+
+        List<Series> foundBySeasonsAndRating = repository.findSeriesByTotalSeasonsLessThanAndImdbRatingIsGreaterThanEqual(seasons, String.valueOf(rating));
+        foundBySeasonsAndRating.forEach(System.out::println);
+    }
+
+    private void searchSeriesByGenre() {
         System.out.println("Informe o nome da categoria/gênero:");
         var genreInput = scanner.nextLine();
 
-        List<Series> seriesByGenre = repository.findByGenre(Categories.valueOf(genreInput));
+        Categories categories = Categories.fromPortuguese(genreInput);
+        List<Series> seriesByGenre = repository.findByGenre(categories);
 
+        System.out.println("Séries da categoria: " + genreInput);
+        seriesByGenre.forEach(System.out::println);
     }
 
     private void searchTopSeries() {
