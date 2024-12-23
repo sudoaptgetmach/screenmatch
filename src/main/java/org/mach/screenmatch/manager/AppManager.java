@@ -37,6 +37,7 @@ public class AppManager {
                        3 - Buscar séries por Ator
                        4 - Buscar séries por Categoria
                        5 - Buscar séries por número de temporadas e avaliação
+                       6 - Buscar episódio por trecho
                        
                        8 - TOP 5 séries
                        9 - Listar séries buscadas
@@ -48,45 +49,59 @@ public class AppManager {
             scanner.nextLine();
 
             switch (choice) {
-                case 1:
-                    searchSeries();
-                    break;
-                case 2:
-                    searchEpisodes();
-                    break;
-                case 3:
-                    searchSeriesByActor();
-                    break;
-                case 4:
-                    searchSeriesByGenre();
-                    break;
-                case 5:
-                    searchBySeasonsAndRating();
-                    break;
-                case 8:
-                    searchTopSeries();
-                    break;
-                case 9:
-                    showSearchedSeries();
-                    break;
-                case 0:
-                    System.out.println("Saindo...");
-                    return;
-                default:
-                    System.out.println("Opção inválida. Tente novamente.");
+                case 1 -> searchSeries();
+                case 2 -> searchEpisodes();
+                case 3 -> searchSeriesByActor();
+                case 4 -> searchSeriesByGenre();
+                case 5 -> searchBySeasonsAndRating();
+                case 6 -> searchEpisodeByExcerpt();
+                case 7 -> topEpisodesBySeries();
+                
+                case 8 -> searchTopSeries();
+                case 9 -> showSearchedSeries();
+                case 0 -> System.out.println("Saindo...");
+                default -> System.out.println("Opção inválida. Tente novamente.");
             }
         }
     }
 
+    private void topEpisodesBySeries() {
+        searchSeries();
+
+
+    }
+
+    private void searchEpisodeByExcerpt() {
+        System.out.println("Digite o trecho desejado:");
+        var excerptEpisode = scanner.nextLine();
+        excerptEpisode = WordUtils.capitalizeFully(excerptEpisode);
+
+        List<Episode> parsedEpisodes = repository.EpisodeByExcerpt(excerptEpisode);
+
+        parsedEpisodes.forEach(e -> System.out.printf(
+                "Serie: %s\nSeason: %s\nEpisode: %s - %s\n",
+                e.getSerie().getTitle(), e.getSeason(), e.getEpisode(), e.getTitle()
+        ));
+    }
+
     private void searchBySeasonsAndRating() {
+        int seasons;
+        double rating;
 
-        System.out.println("Quantas temporadas você quer limitar a pesquisa?");
-        var seasons = scanner.nextInt();
+        while (true) {
+            try {
+                System.out.println("Quantas temporadas você quer limitar a pesquisa?");
+                seasons = Integer.parseInt(scanner.nextLine());
 
-        System.out.println("Qual a avaliação mínima que essa séries deve ter?");
-        var rating = scanner.nextDouble();
+                System.out.println("Qual a avaliação mínima que essa séries deve ter?");
+                rating = Double.parseDouble(scanner.nextLine());
+                break;
+            } catch (NumberFormatException e) {
+                System.out.println("Entrada inválida. Por favor, insira um número válido.");
+            }
+        }
 
-        List<Series> foundBySeasonsAndRating = repository.findSeriesByTotalSeasonsLessThanAndImdbRatingIsGreaterThanEqual(seasons, String.valueOf(rating));
+        List<Series> foundBySeasonsAndRating = repository.seriesBySeasonAndRating(seasons, String.valueOf(rating));
         foundBySeasonsAndRating.forEach(System.out::println);
     }
 
